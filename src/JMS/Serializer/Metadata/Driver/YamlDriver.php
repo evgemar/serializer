@@ -63,12 +63,11 @@ class YamlDriver extends AbstractFileDriver
         }
 
         if ( ! $excludeAll) {
-            foreach ($class->getProperties() as $property) {
-                if ($name !== $property->class) {
-                    continue;
-                }
 
-                $pName = $property->getName();
+            foreach ( $config['properties'] as $pName => $property) {
+
+
+
                 $propertiesMetadata[$pName] = new PropertyMetadata($name, $pName);
             }
 

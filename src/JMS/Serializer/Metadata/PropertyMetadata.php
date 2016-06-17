@@ -51,12 +51,19 @@ class PropertyMetadata extends BasePropertyMetadata
 
     private static $typeParser;
 
+    public function __construct($class, $name)
+    {
+        $this->class = $class;
+        $this->name = $name;
+    }
     public function setAccessor($type, $getter = null, $setter = null)
     {
         if (self::ACCESS_TYPE_PUBLIC_METHOD === $type) {
-            $class = $this->reflection->getDeclaringClass();
+
 
             if (empty($getter)) {
+                parent::__construct($this->class, $this->name);
+                $class = $this->reflection->getDeclaringClass();
                 if ($class->hasMethod('get'.$this->name) && $class->getMethod('get'.$this->name)->isPublic()) {
                     $getter = 'get'.$this->name;
                 } elseif ($class->hasMethod('is'.$this->name) && $class->getMethod('is'.$this->name)->isPublic()) {
@@ -84,6 +91,7 @@ class PropertyMetadata extends BasePropertyMetadata
     public function getValue($obj)
     {
         if (null === $this->getter) {
+            parent::__construct($this->class, $this->name);
             return parent::getValue($obj);
         }
 
@@ -93,11 +101,12 @@ class PropertyMetadata extends BasePropertyMetadata
     public function setValue($obj, $value)
     {
         if (null === $this->setter) {
-            parent::setValue($obj, $value);
-            return;
+            parent::__construct($this->class, $this->name);
+            $this->reflection->setValue($obj, $value);
+       
+        } else {
+            $obj->{$this->setter}($value);
         }
-
-        $obj->{$this->setter}($value);
     }
 
     public function setType($type)
